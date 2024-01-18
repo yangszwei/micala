@@ -14,6 +14,7 @@
 		"#lib/*": "./src/lib/*"
 	},
 	"dependencies": {
+		"@elastic/elasticsearch": "~8.11.0",
 		"@koa/router": "^12.0.1",
 		"dotenv": "^16.3.1",
 		"koa": "^2.15.0"
