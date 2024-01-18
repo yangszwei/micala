@@ -1,0 +1,8 @@
+.DS_Store
+.idea
+.vscode
+node_modules
+.env
+
+# Ignore files for NPM
+package-lock.json
