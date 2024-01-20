@@ -1,10 +1,12 @@
 import { createMyTermsIndexAndPipeline, populateMyTermsIndex } from './terms/index.js';
 import Koa from 'koa';
+import db from '#lib/database/client.js';
 import esclient from '#lib/elasticsearch/client.js';
 import termsRouter from './terms/router.js';
 
 const app = new Koa();
 
+app.context.db = db;
 app.context.esclient = esclient;
 
 // Register routes.
