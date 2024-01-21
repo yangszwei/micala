@@ -4,12 +4,21 @@ import fs from 'fs';
 /**
  * Constructs the API URL for DICOM web server.
  *
- * @param {string} path - The path to append to the base URL.
+ * @param {string} pathname - The DICOM web path, or study UID if it doesn't start with a slash.
+ * @param {string} [seriesUid] - (Optional) The series UID, only used if the first argument is a study UID.
+ * @param {string} [instanceUid] - (Optional) The instance UID, only used if the first argument is a study UID.
  * @returns {string} The constructed API URL.
  */
-export const api = (path) => {
+export const api = (pathname, seriesUid, instanceUid) => {
 	const baseUrl = process.env.DICOMWEB_URL ?? 'http://localhost:8081/dicom-web';
-	return new URL(path.replace(/^\//, './'), baseUrl.replace(/\/?$/, '/')).toString();
+
+	if (!pathname.startsWith('/')) {
+		pathname = `/studies/${pathname}`;
+		if (seriesUid) pathname += `/series/${seriesUid}`;
+		if (instanceUid) pathname += `/instances/${instanceUid}`;
+	}
+
+	return new URL(pathname.replace(/^\//, './'), baseUrl.replace(/\/?$/, '/')).toString();
 };
 
 /**
