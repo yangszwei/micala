@@ -1,12 +1,25 @@
 #!/usr/bin/env node
 
 import app from '../src/index.js';
+import { koaSwagger } from 'koa2-swagger-ui';
+import yamljs from 'yamljs';
 
 const PORT = process.env.PORT ?? 3000;
 
 // Make `console.debug()` a no-op in production.
 if (app.env !== 'development') {
 	console.debug = () => {};
+}
+
+// Enable Swagger UI if the environment variable is set to true.
+if (process.env.ENABLE_SWAGGER_UI === 'true') {
+	// prettier-ignore
+	app.use(koaSwagger({
+		routePrefix: '/swagger-ui',
+		swaggerOptions: {
+			spec: yamljs.load('./docs/swagger.yaml'),
+		},
+	}));
 }
 
 app.listen(PORT);

@@ -1,0 +1,230 @@
+openapi: 3.0.3
+
+info:
+  title: Micala
+  description: 醫療影像與報告查詢系統
+  version: 1.0.0
+
+servers:
+  - url: 'http://localhost:3000'
+
+paths:
+  /studies/index:
+    post:
+      summary: Index a study
+      description: Index a DICOM study specified by its UID in the search engine.
+      parameters:
+        - name: id
+          in: query
+          required: true
+          schema:
+            type: string
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuccessResponse'
+        500:
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+  /studies/search:
+    get:
+      summary: Search studies
+      description: Search studies in the search engine.
+      parameters:
+        - name: search
+          description: The search query.
+          in: query
+          required: true
+          schema:
+            type: string
+        - name: instance
+          description: The UID of the instance.
+          in: query
+          schema:
+            type: string
+        - name: modality
+          in: query
+          schema:
+            type: string
+        - name: patientId
+          in: query
+          schema:
+            type: string
+        - name: patientName
+          in: query
+          schema:
+            type: string
+        - name: fromDate
+          in: query
+          schema:
+            type: string
+            format: date
+        - name: toDate
+          in: query
+          schema:
+            type: string
+            format: date
+        - name: gender
+          in: query
+          schema:
+            type: array
+            items:
+              type: string
+        - name: category
+          in: query
+          schema:
+            type: array
+            items:
+              type: string
+        - name: limit
+          in: query
+          schema:
+            type: integer
+        - name: offset
+          in: query
+          schema:
+            type: integer
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  ok:
+                    type: boolean
+                    enum: [true]
+                  facets:
+                    type: object
+                    properties:
+                      gender:
+                        $ref: '#/components/schemas/FacetOptions'
+                      category:
+                        $ref: '#/components/schemas/FacetOptions'
+                  studies:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        id:
+                          type: string
+                        thumbnail:
+                          type: string
+                          format: url
+                        report:
+                          type: string
+                  total:
+                    type: integer
+  /studies/upload:
+    post:
+      summary: Upload a study
+      description: Upload DICOM files and index them in the search engine. Note that this request may take a while to complete.
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                file:
+                  type: array
+                  items:
+                    type: string
+                    format: binary
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuccessResponse'
+        500:
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+  /terms/suggestions:
+    get:
+      summary: Get term suggestions
+      description: Get term suggestions for the search query.
+      parameters:
+        - name: search
+          description: The search query.
+          in: query
+          required: true
+          schema:
+            type: string
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    key:
+                      type: string
+                    doc_count:
+                      type: integer
+        500:
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+  /thumbnails/{filename}:
+    get:
+      summary: Get a thumbnail
+      description: Get a thumbnail by its filename.
+      parameters:
+        - name: filename
+          description: The filename of the thumbnail.
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        200:
+          description: OK
+          content:
+            image/jpeg:
+              schema:
+                type: string
+                format: binary
+        404:
+          description: Not Found
+
+components:
+  schemas:
+    SuccessResponse:
+      type: object
+      properties:
+        ok:
+          type: boolean
+          enum: [true]
+    ErrorResponse:
+      type: object
+      properties:
+        ok:
+          type: boolean
+          enum: [false]
+        message:
+          type: string
+    FacetOptions:
+      type: array
+      items:
+        type: object
+        properties:
+          key:
+            type: string
+          count:
+            type: integer
