@@ -1,6 +1,6 @@
 import JSZip from 'jszip';
 import { api } from './utils.js';
-import { dcm2jpeg } from '#lib/dcm2jpeg/index.js';
+import { dcm2jpeg } from '#lib/dcmtk/dcmj2pnm.js';
 import dcm2json from '#lib/dcmtk/dcm2json.js';
 import fs from 'fs';
 import { joinDataPath } from '#lib/utils/data.js';
