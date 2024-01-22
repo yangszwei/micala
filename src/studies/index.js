@@ -129,11 +129,15 @@ export const indexImagingStudy = async (client, studyUid) => {
  *
  * @param {import('@elastic/elasticsearch').Client} client - The Elasticsearch client.
  * @param {string[]} files - The paths to the DICOM files to upload.
- * @returns {Promise<void>} A promise that resolves when the files have been uploaded.
+ * @returns {Promise<string[]>} A promise that resolves with the uploaded study UIDs.
  */
 export const uploadImagingStudies = async (client, files) => {
 	const studyUids = await uploadDicomStudies(files);
+
+	// Index the studies.
 	for (const studyUid of studyUids) {
 		await indexImagingStudy(client, studyUid);
 	}
+
+	return studyUids;
 };

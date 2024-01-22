@@ -16,12 +16,10 @@ export default async (ctx) => {
 	// Upload the studies to the PACS server.
 	try {
 		files = files.map((file) => file.filepath);
-		await uploadImagingStudies(ctx.esclient, files);
+		const studyUids = await uploadImagingStudies(ctx.esclient, files);
+		ctx.body = { ok: true, studyUids };
 	} catch (e) {
 		ctx.status = 500;
 		ctx.body = { ok: false, message: e.message };
-		return;
 	}
-
-	ctx.body = { ok: true };
 };

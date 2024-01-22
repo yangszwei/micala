@@ -143,7 +143,15 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/SuccessResponse'
+                type: object
+                properties:
+                  ok:
+                    type: boolean
+                    enum: [true]
+                  studyUids:
+                    type: array
+                    items:
+                      type: string
         500:
           description: Internal Server Error
           content:
