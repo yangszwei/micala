@@ -34,7 +34,7 @@ export const populateRadLexTermIndex = async (client) => {
 		return;
 	}
 
-	const file = await fs.readFile('./data/radlexStem.csv', 'utf8');
+	const file = await fs.readFile('./data/terms/radlexStem.csv', 'utf8');
 	const radlexStem = file.replace(/\r/g, '').split('\n').slice(1);
 
 	console.debug(`Populating "${radlexterm['index']}" index...`);

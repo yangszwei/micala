@@ -1,0 +1,38 @@
+version: '3.9'
+
+services:
+  elasticsearch:
+    image: docker.elastic.co/elasticsearch/elasticsearch:8.11.0
+    restart: unless-stopped
+    environment:
+      - discovery.type=single-node
+      - xpack.security.enabled=false
+      - JAVA_OPTS=-Xms1g -Xmx1g
+    healthcheck:
+      test: ['CMD-SHELL', 'curl --silent --fail localhost:9200/_cluster/health || exit 1']
+      interval: 30s
+      timeout: 30s
+      retries: 3
+    ports:
+      - '9200:9200'
+    volumes:
+      - ./data/terms/radlexterm.txt:/usr/share/elasticsearch/config/terms/radlexterm.txt:ro
+      - ./data/elasticsearch:/usr/share/elasticsearch/data
+
+  kibana:
+    image: docker.elastic.co/kibana/kibana:7.8.1
+    platform: linux/amd64
+    restart: unless-stopped
+    depends_on:
+      elasticsearch:
+        condition: service_healthy
+    environment:
+      - ELASTICSEARCH_URL=http://elasticsearch:9200
+      - XPACK_MONITORING_ENABLED=false
+    healthcheck:
+      test: ['CMD-SHELL', 'curl --silent --fail localhost:5601/api/status || exit 1']
+      interval: 30s
+      timeout: 30s
+      retries: 3
+    ports:
+      - '5601:5601'

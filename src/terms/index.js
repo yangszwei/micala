@@ -25,7 +25,7 @@ export const populateMyTermsIndex = async (client) => {
 		return;
 	}
 
-	const file = await fs.readFile('./data/allterms.csv', 'utf8');
+	const file = await fs.readFile('./data/terms/allterms.csv', 'utf8');
 	const allterms = file.replace(/\r/g, '').split('\n').slice(1);
 
 	console.debug('Populating "my-terms" index...');
