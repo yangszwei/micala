@@ -62,7 +62,7 @@ export const fetchDicom = async (studyUid, seriesUid, instanceUid, dicomOnly = f
  * @param {string} studyUid - The study UID.
  * @param {string} [seriesUid] - (Optional) The series UID.
  * @param {string} [instanceUid] - (Optional) The instance UID.
- * @returns {Promise<string[]>} A promise that resolves with the paths of the thumbnails.
+ * @returns {Promise<string[]>} A promise that resolves with the base names of the thumbnails.
  */
 export const fetchDicomThumbnail = async (studyUid, seriesUid, instanceUid) => {
 	const dcmFiles = await fetchDicom(studyUid, seriesUid, instanceUid, true);
@@ -80,8 +80,8 @@ export const fetchDicomThumbnail = async (studyUid, seriesUid, instanceUid) => {
 		// Convert the DICOM file to JPEG thumbnail.
 		await dcm2jpeg(dcmFile, image);
 
-		// Add the image path to the array.
-		images.push(image);
+		// Add the image basename to the array.
+		images.push(path.basename(image));
 
 		// Delete the DICOM file.
 		fs.rmSync(dcmFile);

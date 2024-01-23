@@ -4,7 +4,6 @@ import { getInstanceUids, getSeriesUids } from '#lib/dicom-web/qido-rs.js';
 import fs from 'fs/promises';
 import myImagingStudies from './indices/my-imaging-studies.js';
 import { newSearchBody } from './services/search.js';
-import path from 'path';
 import radlexterm from './indices/radlexterm.js';
 import radlextermPipeline from './indices/radlexterm-pipeline.js';
 import tags from '#lib/dicom-web/tags.js';
@@ -74,7 +73,7 @@ export const searchImagingStudies = async (client, query) => {
 
 		studies.push({
 			id: hit.uid,
-			thumbnail: toPublicUrl(`thumbnails/${path.basename(thumbnail[0])}`),
+			thumbnail: toPublicUrl(`thumbnails/${thumbnail[0]}`),
 			report: hit?.report?.Records?.FULLTEXT ?? '',
 		});
 	}
