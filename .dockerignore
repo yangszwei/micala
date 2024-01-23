@@ -1,0 +1,8 @@
+.DS_Store
+.idea
+.vscode
+.git
+/data
+!/data/terms
+node_modules
+.env
