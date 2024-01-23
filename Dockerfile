@@ -4,10 +4,16 @@ WORKDIR /app
 # Install DCMTK
 RUN apk add --no-cache dcmtk --repository=http://dl-cdn.alpinelinux.org/alpine/edge/testing/
 
-# Copy source code
-COPY . .
+# Copy package.json and package-lock.json early for caching
+COPY package*.json ./
 
 # Install dependencies
 RUN npm ci --ignore-scripts --omit=dev
 
-CMD ["npm", "start"]
+# Copy source code
+COPY . .
+
+# Add execute permissions to the entrypoint
+RUN chmod +x ./bin/www
+
+ENTRYPOINT ["./bin/www"]
