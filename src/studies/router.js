@@ -11,7 +11,11 @@ const router = new Router();
 
 // Serve study thumbnails.
 router.get('/thumbnails/:name', async (ctx) => {
-	await send(ctx, path.join('thumbnails', ctx.params.name), { root: DATA_PATH });
+	try {
+		await send(ctx, path.join('thumbnails', ctx.params.name), { root: DATA_PATH });
+	} catch (e) {
+		ctx.status = 404;
+	}
 });
 
 // Studies routes.
