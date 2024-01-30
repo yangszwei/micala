@@ -8,7 +8,7 @@ import radlexterm from './indices/radlexterm.js';
 import radlextermPipeline from './indices/radlexterm-pipeline.js';
 import tags from '#lib/dicom-web/tags.js';
 import { toPublicUrl } from '#lib/utils/data.js';
-import { uploadDicomStudies } from '#lib/dicom-web/stow-rs.js';
+import { uploadQueue } from './services/upload.js';
 
 /**
  * Creates indices and ingest pipelines for handling imaging studies.
@@ -128,15 +128,10 @@ export const indexImagingStudy = async (client, studyUid) => {
  *
  * @param {import('@elastic/elasticsearch').Client} client - The Elasticsearch client.
  * @param {string[]} files - The paths to the DICOM files to upload.
- * @returns {Promise<string[]>} A promise that resolves with the uploaded study UIDs.
+ * @returns {string} A promise that resolves with the ID of the upload job.
  */
 export const uploadImagingStudies = async (client, files) => {
-	const studyUids = await uploadDicomStudies(files);
+	const job = await uploadQueue.add('upload', { files });
 
-	// Index the studies.
-	for (const studyUid of studyUids) {
-		await indexImagingStudy(client, studyUid);
-	}
-
-	return studyUids;
+	return job.id;
 };

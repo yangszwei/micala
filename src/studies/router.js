@@ -1,9 +1,9 @@
+import { getStudiesUploadProgress, uploadStudies } from './controllers/upload.js';
 import Router from '@koa/router';
 import indexImagingStudy from './controllers/index.js';
 import path from 'path';
 import searchImagingStudies from './controllers/search.js';
 import send from 'koa-send';
-import uploadImagingStudies from './controllers/upload.js';
 
 const DATA_PATH = process.env.DATA_PATH ?? './data';
 
@@ -21,6 +21,7 @@ router.get('/thumbnails/:name', async (ctx) => {
 // Studies routes.
 router.post('/studies/index', indexImagingStudy);
 router.get('/studies/search', searchImagingStudies);
-router.post('/studies/upload', uploadImagingStudies);
+router.post('/studies/upload', uploadStudies);
+router.get('/studies/upload', getStudiesUploadProgress);
 
 export default router;
