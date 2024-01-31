@@ -14,6 +14,6 @@ RUN npm ci --ignore-scripts --omit=dev
 COPY . .
 
 # Add execute permissions to the entrypoint
-RUN chmod +x ./bin/www
+RUN chmod +x ./bin/www.js
 
-ENTRYPOINT ["./bin/www"]
+ENTRYPOINT ["./bin/www.js"]

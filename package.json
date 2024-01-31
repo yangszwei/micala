@@ -4,8 +4,8 @@
 	"description": "醫療影像與報告查詢系統",
 	"private": true,
 	"scripts": {
-		"start": "node -r dotenv/config ./bin/www",
-		"dev": "node -r dotenv/config --watch ./bin/www",
+		"start": "node -r dotenv/config ./bin/www.js",
+		"dev": "node -r dotenv/config --watch ./bin/www.js",
 		"lint": "prettier --check . && eslint .",
 		"format": "prettier --write .",
 		"postinstall": "git config core.hooksPath .githooks"
