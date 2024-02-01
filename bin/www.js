@@ -6,6 +6,11 @@ import yamljs from 'yamljs';
 
 const PORT = process.env.PORT ?? 3000;
 
+// Log the environment.
+if (app.env === 'development') {
+	console.debug('Running in development mode.');
+}
+
 // Make `console.debug()` a no-op in production.
 if (app.env !== 'development') {
 	console.debug = () => {};
