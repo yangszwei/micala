@@ -27,11 +27,15 @@ if (process.env.ENABLE_SWAGGER_UI === 'true') {
 	}));
 }
 
-// Handle SIGINT signal gracefully.
-process.on('SIGTERM', () => {
+// Handle exit signal gracefully.
+const gracefulShutdown = () => {
 	console.info('Exiting...');
 	process.exit(0);
-});
+};
+
+process.on('SIGINT', gracefulShutdown);
+
+process.on('SIGTERM', gracefulShutdown);
 
 process.on('uncaughtException', (err) => {
 	console.error('Uncaught exception', err);
