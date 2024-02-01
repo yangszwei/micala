@@ -6,9 +6,10 @@ import tags from './tags.js';
  * Uploads DICOM studies to PACS server.
  *
  * @param {string[]} files - The DICOM files to upload.
+ * @param {(progress: number) => void} onUploadProgress - A callback that is called with the upload progress.
  * @returns {Promise<string[]>} A promise that resolves with the ids of the uploaded studies.
  */
-export const uploadDicomStudies = async (files) => {
+export async function uploadDicomStudies(files, onUploadProgress) {
 	try {
 		const formData = await dcm2multipart(files);
 
@@ -17,7 +18,10 @@ export const uploadDicomStudies = async (files) => {
 			'Content-Type': `multipart/related; type="application/dicom"; boundary=${formData.getBoundary()}`,
 		};
 
-		const response = await axios.post(api('/studies'), formData, { headers });
+		const response = await axios.post(api('/studies'), formData, {
+			headers,
+			onUploadProgress: (event) => onUploadProgress(event.progress),
+		});
 
 		// Extract the study retrieve URLs from the response.
 		const retrieveUrls = response.data?.[tags.RETRIEVE_URL].Value ?? [];
@@ -27,4 +31,4 @@ export const uploadDicomStudies = async (files) => {
 		console.debug('Failed to upload DICOM studies:', e.response.data);
 		throw new Error(e.response.data?.Message ?? 'Unknown error');
 	}
-};
+}

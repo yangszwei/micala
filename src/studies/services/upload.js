@@ -8,18 +8,78 @@ export const uploadQueue = new Queue('upload');
 const worker = new Worker(
 	'upload',
 	async (job) => {
-		await job.updateProgress({ status: 'uploading' });
+		const status = { status: 'uploading', progress: 0 };
 
-		const studyUids = await uploadDicomStudies(job.data.files);
+		await job.updateProgress(status);
+
+		const uploadTask = uploadDicomStudies(job.data.files, async (progress) => {
+			status.progress = Math.min(progress * 0.25, status.progress);
+			await job.updateProgress(status);
+		});
+
+		await Promise.race([
+			uploadTask,
+			new Promise((resolve) => {
+				let startProgress = status.progress;
+				let i = 1;
+				const delay = 500; // initial delay
+				const increase = 50; // increase in delay per iteration
+
+				const intervalFunc = async () => {
+					status.progress = Math.max(startProgress + i * 0.01, status.progress);
+					console.log('progress', startProgress + i * 0.01, status.progress);
+					await job.updateProgress(status);
+					if (++i > 25) {
+						await uploadTask;
+						resolve();
+					} else {
+						setTimeout(intervalFunc, delay + increase * i);
+					}
+				};
+
+				setTimeout(intervalFunc, delay);
+			}),
+		]);
+
+		const studyUids = await uploadTask;
+
+		status.status = 'indexing';
+		await job.updateProgress(status);
 
 		// Index the studies.
 		for (const studyUid of studyUids) {
-			await job.updateProgress({ status: 'indexing', studyUid });
-			await job.updateProgress({ done: false, currentStudyUid: studyUid });
-			await indexImagingStudy(esclient, studyUid);
+			status.currentStudyUid = studyUid;
+			const increment = 0.75 / studyUids.length / 10;
+			let i = 1;
+			await Promise.race([
+				new Promise((resolve) => {
+					const delay = 500; // initial delay
+					const increase = 50; // increase in delay per iteration
+
+					const intervalFunc = async () => {
+						status.progress = Math.min(0.25 + i * increment, status.progress);
+						await job.updateProgress(status);
+						if (++i > 10) {
+							resolve();
+						} else {
+							setTimeout(intervalFunc, delay + increase * i);
+						}
+					};
+
+					setTimeout(intervalFunc, delay);
+				}),
+				(async () => {
+					for await (const progress of indexImagingStudy(esclient, studyUid)) {
+						status.progress = Math.max(0.25 + progress * increment, status.progress);
+						await job.updateProgress(status);
+					}
+				})(),
+			]);
 		}
 
-		await job.updateProgress({ status: 'done' });
+		status.status = 'done';
+		status.progress = 1;
+		await job.updateProgress(status);
 	},
 	{
 		connection: {

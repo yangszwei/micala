@@ -91,29 +91,39 @@ export const searchImagingStudies = async (client, query) => {
  * @param {string} studyUid - The UID of the study to index.
  * @returns {Promise<void>} A promise that resolves when the study has been indexed.
  */
-export const indexImagingStudy = async (client, studyUid) => {
+export async function* indexImagingStudy(client, studyUid) {
 	const document = {
 		uid: studyUid,
 		dicomJson: (await fetchDicomJson(studyUid))[0],
 		series: [],
 	};
 
-	for (const seriesUid of await getSeriesUids(studyUid)) {
+	const seriesUids = await getSeriesUids(studyUid);
+
+	let progress = 1 / (seriesUids.length + 1);
+	yield progress;
+
+	for (const seriesUid of seriesUids) {
 		const series = {
 			uid: seriesUid,
 			dicomJson: await fetchDicomJson(studyUid, seriesUid),
 			instance: [],
 		};
 
-		for (const instanceUid of await getInstanceUids(studyUid, seriesUid)) {
+		const instanceUids = await getInstanceUids(studyUid, seriesUid);
+		for (const instanceUid of instanceUids) {
 			series.instance.push({
 				uid: instanceUid,
 				dicomJson: await fetchDicomJson(studyUid, seriesUid, instanceUid),
 				metadata: await getMetadata(studyUid, seriesUid, instanceUid),
 			});
+			progress += Math.min((1 / (seriesUids.length + 1)) * instanceUids.length, 1);
+			yield progress;
 		}
 
 		document.series.push(series);
+
+		yield 1;
 	}
 
 	await client.index({
@@ -121,14 +131,14 @@ export const indexImagingStudy = async (client, studyUid) => {
 		id: document.dicomJson[tags.STUDY_INSTANCE_UID].Value[0],
 		document,
 	});
-};
+}
 
 /**
  * Uploads the given DICOM files to the server and indexes them.
  *
  * @param {import('@elastic/elasticsearch').Client} client - The Elasticsearch client.
  * @param {string[]} files - The paths to the DICOM files to upload.
- * @returns {string} A promise that resolves with the ID of the upload job.
+ * @returns {Promise<string>} A promise that resolves with the ID of the upload job.
  */
 export const uploadImagingStudies = async (client, files) => {
 	const job = await uploadQueue.add('upload', { files });
