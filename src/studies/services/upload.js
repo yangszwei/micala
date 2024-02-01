@@ -27,7 +27,6 @@ const worker = new Worker(
 
 				const intervalFunc = async () => {
 					status.progress = Math.max(startProgress + i * 0.01, status.progress);
-					console.log('progress', startProgress + i * 0.01, status.progress);
 					await job.updateProgress(status);
 					if (++i > 25) {
 						await uploadTask;
@@ -43,13 +42,14 @@ const worker = new Worker(
 
 		const studyUids = await uploadTask;
 
+		status.progress = 0.25;
 		status.status = 'indexing';
 		await job.updateProgress(status);
 
 		// Index the studies.
 		for (const studyUid of studyUids) {
 			status.currentStudyUid = studyUid;
-			const increment = 0.75 / studyUids.length / 10;
+			const increment = 0.75 / studyUids.length / 20;
 			let i = 1;
 			await Promise.race([
 				new Promise((resolve) => {
@@ -57,9 +57,9 @@ const worker = new Worker(
 					const increase = 50; // increase in delay per iteration
 
 					const intervalFunc = async () => {
-						status.progress = Math.min(0.25 + i * increment, status.progress);
+						status.progress = Math.max(0.25 + i * increment, status.progress);
 						await job.updateProgress(status);
-						if (++i > 10) {
+						if (++i > 20) {
 							resolve();
 						} else {
 							setTimeout(intervalFunc, delay + increase * i);
@@ -70,7 +70,7 @@ const worker = new Worker(
 				}),
 				(async () => {
 					for await (const progress of indexImagingStudy(esclient, studyUid)) {
-						status.progress = Math.max(0.25 + progress * increment, status.progress);
+						status.progress = Math.max(0.25 + progress * (0.75 / studyUids.length), status.progress);
 						await job.updateProgress(status);
 					}
 				})(),

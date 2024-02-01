@@ -59,9 +59,12 @@ export const getStudiesUploadProgress = async (ctx) => {
 		}
 	});
 
-	uploadQueue.getJob(jobId).then((job) => {
+	uploadQueue.getJob(jobId).then(async (job) => {
 		if (job) {
 			stream.write(`data: ${JSON.stringify(job.progress)}\n\n`);
+			if (await job.isCompleted()) {
+				stream.end();
+			}
 		}
 	});
 
