@@ -1,4 +1,5 @@
 import { Queue, Worker } from 'bullmq';
+import { connection } from '#lib/bullmq/config.js';
 import esclient from '#lib/elasticsearch/client.js';
 import { indexImagingStudy } from '../index.js';
 import { uploadDicomStudies } from '#lib/dicom-web/stow-rs.js';
@@ -81,12 +82,7 @@ const worker = new Worker(
 		status.progress = 1;
 		await job.updateProgress(status);
 	},
-	{
-		connection: {
-			host: 'localhost',
-			port: 6379,
-		},
-	},
+	{ connection },
 );
 
 if (!worker.isRunning()) {
