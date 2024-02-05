@@ -74,6 +74,7 @@ export const searchImagingStudies = async (client, query) => {
 		studies.push({
 			id: hit.uid,
 			thumbnail: toPublicUrl(`thumbnails/${thumbnail[0]}`),
+			instanceUid: hit?.series?.[0]?.instance?.[0]?.uid ?? null,
 			report: hit?.report?.Records?.FULLTEXT ?? '',
 		});
 	}
