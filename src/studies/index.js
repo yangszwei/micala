@@ -1,13 +1,14 @@
 import { createIndexIfNotExists, getIndexDocsCount } from '#lib/elasticsearch/utils.js';
 import { fetchDicomJson, fetchDicomThumbnail, getMetadata } from '#lib/dicom-web/wado-rs.js';
 import { getInstanceUids, getSeriesUids } from '#lib/dicom-web/qido-rs.js';
+import { joinDataPath, toPublicUrl } from '#lib/utils/data.js';
+import db from '#lib/mongodb/client.js';
 import fs from 'fs/promises';
 import myImagingStudies from './indices/my-imaging-studies.js';
 import { newSearchBody } from './services/search.js';
 import radlexterm from './indices/radlexterm.js';
 import radlextermPipeline from './indices/radlexterm-pipeline.js';
 import tags from '#lib/dicom-web/tags.js';
-import { toPublicUrl } from '#lib/utils/data.js';
 import { uploadQueue } from './services/upload.js';
 
 /**
@@ -66,14 +67,31 @@ export const searchImagingStudies = async (client, query) => {
 	// Get the studies from the response.
 	const studies = [];
 	for (const { _source: hit } of response.hits.hits) {
-		const thumbnail = await fetchDicomThumbnail(hit.uid);
-		if (thumbnail.length > 1) {
-			thumbnail.slice(1).forEach((path) => fs.rm(path));
+		let thumbnail = null;
+
+		const cache = await db().collection('thumbnails').findOne({ uid: hit.uid });
+		if (cache) {
+			thumbnail = cache.filename;
+			try {
+				await fs.access(joinDataPath('thumbnails', thumbnail));
+			} catch (e) {
+				thumbnail = null;
+			}
 		}
+
+		if (!thumbnail) {
+			const filename = await fetchDicomThumbnail(hit.uid);
+			thumbnail = filename[0] ?? '';
+		}
+
+		// Cache the thumbnail filename.
+		await db()
+			.collection('thumbnails')
+			.updateOne({ uid: hit.uid }, { $set: { filename: thumbnail } }, { upsert: true });
 
 		studies.push({
 			id: hit.uid,
-			thumbnail: toPublicUrl(`thumbnails/${thumbnail[0]}`),
+			thumbnail: toPublicUrl(`thumbnails/${thumbnail}`),
 			instanceUid: hit?.series?.[0]?.instance?.[0]?.uid ?? null,
 			report: hit?.report?.Records?.FULLTEXT ?? '',
 		});
