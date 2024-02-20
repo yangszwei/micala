@@ -1,7 +1,7 @@
 import { createMyTermsIndexAndPipeline, populateMyTermsIndex } from './terms/index.js';
 import { createStudiesIndicesAndPipelines, populateRadLexTermIndex } from './studies/index.js';
 import Koa from 'koa';
-import db from '#lib/mongodb/client.js';
+import { client as db } from '#lib/mongodb/client.js';
 import esclient from '#lib/elasticsearch/client.js';
 import { koaBody } from 'koa-body';
 import studiesRouter from './studies/router.js';
