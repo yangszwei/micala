@@ -4,7 +4,7 @@ import esclient from '#lib/elasticsearch/client.js';
 import { indexImagingStudy } from '../index.js';
 import { uploadDicomStudies } from '#lib/dicom-web/stow-rs.js';
 
-export const uploadQueue = new Queue('upload');
+export const uploadQueue = new Queue('upload', { connection });
 
 const worker = new Worker(
 	'upload',

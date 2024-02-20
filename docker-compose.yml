@@ -80,6 +80,8 @@ services:
       - MONGODB_URI=mongodb://mongo:27017/micala
       - DATA_PATH=/data
       - ELASTICSEARCH_URL=http://elasticsearch:9200
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
     ports:
       - '3000:3000'
     volumes:
