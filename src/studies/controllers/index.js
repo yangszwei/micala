@@ -12,7 +12,10 @@ export default async (ctx) => {
 	}
 
 	try {
-		await indexImagingStudy(ctx.esclient, ctx.query.id);
+		// eslint-disable-next-line no-unused-vars
+		for await (const _ of indexImagingStudy(ctx.esclient, ctx.query.id)) {
+			// no-op
+		}
 	} catch (e) {
 		ctx.status = 500;
 		ctx.body = { ok: false, message: e.message };
