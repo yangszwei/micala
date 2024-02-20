@@ -1,8 +1,8 @@
+import { getInstancesController, getSeriesController, getStudiesController } from './controllers/manage.js';
 import { getStudiesUploadProgress, uploadStudies } from './controllers/upload.js';
 import Router from '@koa/router';
 import indexImagingStudy from './controllers/index.js';
 import path from 'path';
-import queryStudies from './controllers/manage.js';
 import searchImagingStudies from './controllers/search.js';
 import send from 'koa-send';
 
@@ -21,7 +21,9 @@ router.get('/thumbnails/:name', async (ctx) => {
 
 // Studies routes.
 router.post('/studies/index', indexImagingStudy);
-router.get('/studies', queryStudies);
+router.get('/studies', getStudiesController);
+router.get('/studies/:studyUid/series', getSeriesController);
+router.get('/studies/:studyUid/series/:seriesUid/instances', getInstancesController);
 router.get('/studies/search', searchImagingStudies);
 router.post('/studies/upload', uploadStudies);
 router.get('/studies/upload', getStudiesUploadProgress);

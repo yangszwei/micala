@@ -12,8 +12,6 @@ export const queryStudies = async (query) => {
 	if (query.modality) params.set(tags.MODALITY, query.modality);
 	if (query.identifier) params.set(tags.STUDY_INSTANCE_UID, query.identifier);
 
-	console.log(api('/studies') + '?' + params.toString());
-
 	const response = await fetch(api('/studies') + '?' + params.toString());
 	if (response.status === 204) {
 		return [];
@@ -41,6 +39,54 @@ export const queryStudies = async (query) => {
 		patientId: study[tags.PATIENT_ID]?.Value[0] ?? '',
 		studyUid: study[tags.STUDY_INSTANCE_UID]?.Value[0] ?? '',
 		retrieveUrl: study[tags.RETRIEVE_URL]?.Value[0] ?? '',
+		seriesUrl: new URL(
+			`./studies/${study[tags.STUDY_INSTANCE_UID].Value[0]}/series`,
+			process.env.ORIGIN ?? 'http://localhost:3000',
+		),
+	}));
+};
+
+export const getSeries = async (studyUid) => {
+	const response = await fetch(api(studyUid) + '/series');
+	if (response.status !== 200) {
+		throw new Error('Failed to fetch series');
+	}
+
+	const series = await response.json();
+	if (!Array.isArray(series)) {
+		console.debug('Failed to parse series: ', series);
+		return [];
+	}
+
+	return series.map((series) => ({
+		seriesUid: series[tags.SERIES_INSTANCE_UID].Value[0] ?? '',
+		seriesDescription: series[tags.SERIES_DESCRIPTION]?.Value[0] ?? '',
+		modality: series[tags.MODALITY]?.Value[0] ?? '',
+		number: series[tags.SERIES_NUMBER]?.Value[0] ?? null,
+		instancesUrl: new URL(
+			`./studies/${studyUid}/series/${series[tags.SERIES_INSTANCE_UID].Value[0]}/instances`,
+			process.env.ORIGIN ?? 'http://localhost:3000',
+		),
+	}));
+};
+
+export const getInstances = async (studyUid, seriesUid) => {
+	const response = await fetch(api(studyUid, seriesUid) + '/instances');
+	if (response.status !== 200) {
+		throw new Error('Failed to fetch instances');
+	}
+
+	const instances = await response.json();
+	if (!Array.isArray(instances)) {
+		console.debug('Failed to parse instances: ', instances);
+		return [];
+	}
+
+	return instances.map((instance) => ({
+		number: instance[tags.INSTANCE_NUMBER]?.Value[0] ?? null,
+		title: instance[tags.FRAME_TYPE]?.Value[0] ?? '',
+		sopClassUid: instance[tags.SOP_CLASS_UID].Value[0] ?? '',
+		instanceUid: instance[tags.SOP_INSTANCE_UID].Value[0] ?? '',
 	}));
 };
 

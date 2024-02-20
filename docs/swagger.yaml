@@ -67,6 +67,64 @@ paths:
                     type: array
                     items:
                       $ref: '#/components/schemas/Study'
+  /studies/:studyUid/series:
+    get:
+      summary: Get series
+      description: This endpoint allows you to get series of the specified study.
+      parameters:
+        - in: path
+          name: studyUid
+          schema:
+            type: string
+          description: The UID of the study.
+          required: true
+      responses:
+        '200':
+          description: A list of series.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  ok:
+                    type: boolean
+                    enum: [true]
+                  items:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Series'
+  /studies/:studyUid/series/:seriesUid/instances:
+    get:
+      summary: Get instances
+      description: This endpoint allows you to get instances of the specified series.
+      parameters:
+        - in: path
+          name: studyUid
+          schema:
+            type: string
+          description: The UID of the study.
+          required: true
+        - in: path
+          name: seriesUid
+          schema:
+            type: string
+          description: The UID of the series.
+          required: true
+      responses:
+        '200':
+          description: A list of instances.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  ok:
+                    type: boolean
+                    enum: [true]
+                  items:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Instance'
   /studies/index:
     post:
       summary: Index a study
@@ -292,6 +350,44 @@ components:
         retrieveUrl:
           type: string
           description: The URL to retrieve the study.
+        seriesUrl:
+          type: string
+          description: The URL to retrieve the series of the study.
+    Series:
+      type: object
+      properties:
+        seriesUid:
+          type: string
+          description: The UID of the series.
+        seriesDescription:
+          type: string
+          description: The description of the series.
+        modality:
+          type: string
+          description: The modality of the series.
+        number:
+          type: string
+          pattern: "^\\d+$"
+          description: The series number.
+        instancesUrl:
+          type: string
+          description: The URL to retrieve the series of the study.
+    Instance:
+      type: object
+      properties:
+        number:
+          type: string
+          pattern: "^\\d+$"
+          description: The series number.
+        title:
+          type: string
+          description: The title of the instance.
+        sopClassUid:
+          type: string
+          description: The UID of the SOP class.
+        instanceUid:
+          type: string
+          description: The UID of the instance.
     SuccessResponse:
       type: object
       properties:
