@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 
-import app from '../src/index.js';
+import app, { initializeApp } from '../src/index.js';
 import { koaSwagger } from 'koa2-swagger-ui';
 import yamljs from 'yamljs';
 
@@ -26,6 +26,9 @@ if (process.env.ENABLE_SWAGGER_UI === 'true') {
 		},
 	}));
 }
+
+// Initialize the app.
+await initializeApp();
 
 // Handle exit signal gracefully.
 const gracefulShutdown = () => {
