@@ -9,6 +9,64 @@ servers:
   - url: 'http://localhost:3000'
 
 paths:
+  /studies:
+    get:
+      summary: Get studies
+      description: This endpoint allows you to get studies based on the provided query parameters.
+      parameters:
+        - in: query
+          name: modality
+          schema:
+            type: string
+          description: The modality of the study.
+          required: false
+        - in: query
+          name: patientId
+          schema:
+            type: number
+          description: The patient ID of the study.
+          required: false
+        - in: query
+          name: patientName
+          schema:
+            type: string
+          description: The patient name of the study.
+          required: false
+        - in: query
+          name: fromDate
+          schema:
+            type: string
+            format: date
+          description: Select studies from this date onwards.
+          required: false
+        - in: query
+          name: toDate
+          schema:
+            type: string
+            format: date
+          description: Select studies up to this date.
+          required: false
+        - in: query
+          name: identifier
+          schema:
+            type: string
+          description: The study instance UID.
+          required: false
+      responses:
+        '200':
+          description: A list of studies.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  ok:
+                    type: boolean
+                    enum: [true]
+                  items:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Study'
   /studies/index:
     post:
       summary: Index a study
@@ -213,6 +271,27 @@ paths:
 
 components:
   schemas:
+    Study:
+      type: object
+      properties:
+        studyDate:
+          type: string
+          description: The date of the study.
+        description:
+          type: string
+          description: The description of the study.
+        patientName:
+          type: string
+          description: The name of the patient.
+        patientId:
+          type: string
+          description: The ID of the patient.
+        studyUid:
+          type: string
+          description: The UID of the study.
+        retrieveUrl:
+          type: string
+          description: The URL to retrieve the study.
     SuccessResponse:
       type: object
       properties:

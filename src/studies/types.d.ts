@@ -1,3 +1,18 @@
+interface ManageStudiesQuery {
+	/** The modality of the study. */
+	modality?: string;
+	/** The patient ID of the study. */
+	patientId?: number;
+	/** The patient name of the study. */
+	patientName?: string;
+	/** Select studies from this date onwards. */
+	fromDate?: string;
+	/** Select studies up to this date. */
+	toDate?: string;
+	/** The study instance UID. */
+	identifier?: string;
+}
+
 /** The query object for the search studies endpoint. */
 interface SearchStudiesQuery {
 	/** The search term for the studies. */
