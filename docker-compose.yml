@@ -50,6 +50,21 @@ services:
     volumes:
       - ./data/redis:/data
 
+  mongo:
+    image: mongo
+    restart: unless-stopped
+    healthcheck:
+      test: ['CMD', 'mongosh', '--eval', 'db.adminCommand("ping")']
+      interval: 30s
+      timeout: 30s
+      retries: 3
+    environment:
+      - MONGO_INITDB_DATABASE=micala
+    ports:
+      - '27017:27017'
+    volumes:
+      - ./data/mongo:/data/db
+
   micala:
     build: .
     restart: unless-stopped
@@ -58,8 +73,11 @@ services:
         condition: service_healthy
       redis:
         condition: service_healthy
+      mongo:
+        condition: service_healthy
     env_file: .env
     environment:
+      - MONGODB_URI=mongodb://mongo:27017/micala
       - DATA_PATH=/data
       - ELASTICSEARCH_URL=http://elasticsearch:9200
     ports:

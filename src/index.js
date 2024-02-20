@@ -9,6 +9,15 @@ import termsRouter from './terms/router.js';
 
 const app = new Koa();
 
+// Connect to MongoDB.
+try {
+	await db.connect();
+	console.debug('Connected to MongoDB.');
+} catch (e) {
+	console.error('Failed to connect to MongoDB:', e.message);
+	process.exit(1);
+}
+
 app.context.db = db;
 app.context.esclient = esclient;
 
