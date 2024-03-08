@@ -4,6 +4,7 @@ import Koa from 'koa';
 import { client as db } from '#lib/mongodb/client.js';
 import esclient from '#lib/elasticsearch/client.js';
 import { koaBody } from 'koa-body';
+import reportsRouter from './reports/router.js';
 import studiesRouter from './studies/router.js';
 import termsRouter from './terms/router.js';
 
@@ -36,6 +37,7 @@ export const initializeApp = async () => {
 	app.use(koaBody({ multipart: true }));
 
 	// Register routes.
+	app.use(reportsRouter.routes()).use(reportsRouter.allowedMethods());
 	app.use(studiesRouter.routes()).use(studiesRouter.allowedMethods());
 	app.use(termsRouter.routes()).use(termsRouter.allowedMethods());
 

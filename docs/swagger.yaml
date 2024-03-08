@@ -9,6 +9,37 @@ servers:
   - url: 'http://localhost:3000'
 
 paths:
+  /reports/upload:
+    post:
+      summary: Upload reports
+      description: Upload DICOM reports to the database.
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                patientId:
+                  type: string
+                reportNumber:
+                  type: string
+                files:
+                  type: array
+                  items:
+                    type: string
+                    description: .txt files
+                    format: binary
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  ok:
+                    type: boolean
+                    enum: [true]
   /studies:
     get:
       summary: Get studies
