@@ -1,7 +1,7 @@
 export default {
 	index: 'my-imaging-studies',
 	settings: {
-		'index.mapping.total_fields.limit': 5000,
+		'index.mapping.total_fields.limit': 10000,
 		'index.max_ngram_diff': 20,
 		'index.max_shingle_diff': 5,
 		analysis: {
